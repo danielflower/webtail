@@ -9,14 +9,12 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
-public class HelloWorld
-{
+import java.io.File;
+
+public class HelloWorld {
 
 
-	public static void main(String[] args) throws Exception
-	{
-
-		System.out.println(Class.forName("org.eclipse.jetty.websocket.server.WebSocketServerFactory"));
+	public static void main(String[] args) throws Exception {
 
 		Server server = new Server();
 
@@ -26,8 +24,7 @@ public class HelloWorld
 		http.setIdleTimeout(30000);
 		server.addConnector(http);
 
-		ResourceHandler resourceHandler = new ResourceHandler();
-		resourceHandler.setBaseResource(Resource.newClassPathResource("webroot"));
+		ResourceHandler resourceHandler = createResourceHandler();
 
 
 		ServletHandler websocketHandler = new ServletHandler();
@@ -36,10 +33,23 @@ public class HelloWorld
 
 
 		HandlerList handlers = new HandlerList();
-		handlers.setHandlers(new Handler[] { resourceHandler, websocketHandler, new DefaultHandler() });
+		handlers.setHandlers(new Handler[]{resourceHandler, websocketHandler, new DefaultHandler()});
 		server.setHandler(handlers);
 
 		server.start();
 		server.join();
+	}
+
+	private static ResourceHandler createResourceHandler() {
+		ResourceHandler resourceHandler = new ResourceHandler();
+		File srcRoot = new File("src/main/resources/webroot");
+		if (srcRoot.exists()) {
+			System.out.println("Development file server being used. You can update files in "
+					+ srcRoot.getAbsolutePath() + " without restarting the web server.");
+			resourceHandler.setResourceBase(srcRoot.getAbsolutePath());
+		} else {
+			resourceHandler.setBaseResource(Resource.newClassPathResource("webroot"));
+		}
+		return resourceHandler;
 	}
 }
