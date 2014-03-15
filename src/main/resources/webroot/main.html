@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Main</title>
+    <script>
+        window.onload = function () {
+            var content = document.getElementById('content');
+            var ws = new WebSocket("ws://localhost:8080/echoit");
+            ws.onopen = function(event) {
+                console.log('connected', event);
+                ws.send('hello there');
+            }
+            ws.onmessage = function(event) {
+                console.log('got message', event);
+            }
+            ws.onclose = function(event) {
+                console.log('closed', event);
+            }
+        };
+    </script>
+</head>
+<body>
+
+    <h1>Hello world</h1>
+
+    <div id="content">
+
+    </div>
+
+</body>
+</html>
