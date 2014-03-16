@@ -1,0 +1,7 @@
+.consoleContainer {
+    height: 200px;
+    overflow: scroll;
+    overflow-x: scroll;
+    width: 95%;
+    font-family: "Consolas", "Menlo", "Courier", monospace;
+}
