@@ -42,13 +42,13 @@ public class HelloWorld {
 
 	private static ResourceHandler createResourceHandler() {
 		ResourceHandler resourceHandler = new ResourceHandler();
-		File srcRoot = new File("src/main/resources/webroot");
+		File srcRoot = new File("src/main/html/app");
 		if (srcRoot.exists()) {
 			System.out.println("Development file server being used. You can update files in "
 					+ srcRoot.getAbsolutePath() + " without restarting the web server.");
 			resourceHandler.setResourceBase(srcRoot.getAbsolutePath());
 		} else {
-			resourceHandler.setBaseResource(Resource.newClassPathResource("webroot"));
+			resourceHandler.setBaseResource(Resource.newClassPathResource("/"));
 		}
 		return resourceHandler;
 	}
