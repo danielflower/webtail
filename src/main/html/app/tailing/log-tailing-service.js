@@ -15,7 +15,11 @@
          * @param callback Callback containing each log line
          */
         this.startTailing = function (logName, callback) {
-            serviceRouter.subscribe('startTailing', { logName: logName }, callback);
+            serviceRouter.subscribe('LogTailing', logName, callback);
+        };
+
+        this.stopTailing = function (logName, callback) {
+            serviceRouter.unsubscribe('LogTailing', logName, callback);
         };
 
     };

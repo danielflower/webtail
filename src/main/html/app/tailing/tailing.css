@@ -2,6 +2,19 @@
     height: 200px;
     overflow: scroll;
     overflow-x: scroll;
-    width: 95%;
+    width: 400px;
     font-family: "Consolas", "Menlo", "Courier", monospace;
+    resize: both;
+}
+
+.consoleContainer .warn {
+    background-color: #ffff00;
+}
+
+.consoleContainer .error {
+    background-color: #ff0000;
+}
+
+.consoleContainer .success {
+    background-color: #00ff00;
 }

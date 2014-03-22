@@ -7,8 +7,11 @@
      */
     var ServiceRouter = function ($q) {
 
-        var socketPromise = null;
+        var idFor = function (service, instance) {
+            return service + ' ' + instance;
+        };
 
+        var socketPromise = null;
 
         var subscribers = {};
         var getSocket = function () {
@@ -20,36 +23,66 @@
                     socketPromise.resolve(ws);
                 };
                 ws.onmessage = function (event) {
-                    subscribers['startTailing'].forEach(function (subby) {
-                        subby(event.data);
+                    var message = JSON.parse(event.data);
+                    subscribers[idFor(message.name, message.instanceName)].forEach(function (subby) {
+                        subby(message.data);
                     });
                 };
                 ws.onclose = function (event) {
-                    //socket = null;
+                    socketPromise = null;
                     console.log('closed', event);
                 };
             }
             return socketPromise.promise;
         };
 
-        this.subscribe = function (serviceName, parameters, callback) {
-            if (!subscribers[serviceName]) {
-                subscribers[serviceName] = [];
-            }
-            subscribers[serviceName].push(callback);
-            getSocket().then(function (ws) {
-                var request = {
-                    service: serviceName,
-                    params: parameters
-                };
-                ws.send(JSON.stringify(request));
-            });
+        var hasSubscribers = function (id) {
+            return !!subscribers[id];
         };
 
-        this.unsubscribe = function (serviceName, callback) {
-            subscribers[serviceName] = subscribers[serviceName].filter(function (val) {
-                return val !== callback;
-            });
+        var getSubscribersForService = function (id) {
+            var subbies = subscribers[id];
+            if (!subbies) {
+                subbies = [];
+                subscribers[id] = subbies;
+            }
+            return subbies;
+        };
+
+        this.subscribe = function (serviceName, instanceName, callback) {
+            var id = idFor(serviceName, instanceName);
+            var alreadySubscribed = hasSubscribers(id);
+            getSubscribersForService(id).push(callback);
+            if (!alreadySubscribed) {
+                getSocket().then(function (ws) {
+                    var request = {
+                        name: serviceName,
+                        action: 'subscribe',
+                        instanceName: instanceName
+                    };
+                    ws.send(JSON.stringify(request));
+                });
+            }
+        };
+
+        this.unsubscribe = function (serviceName, instanceName, callback) {
+            var id = idFor(serviceName, instanceName);
+            if (hasSubscribers(id)) {
+                subscribers[id] = subscribers[id].filter(function (val) {
+                    return val !== callback;
+                });
+                if (subscribers[id].length === 0) {
+                    delete subscribers[serviceName];
+                    getSocket().then(function (ws) {
+                        var request = {
+                            name: serviceName,
+                            action: 'unsubscribe',
+                            instanceName: instanceName
+                        };
+                        ws.send(JSON.stringify(request));
+                    });
+                }
+            }
         };
 
     };

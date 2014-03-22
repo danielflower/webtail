@@ -3,7 +3,7 @@ package com.github.danielflower.webtail;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
-public class MyEchoServlet extends WebSocketServlet {
+public class WebSocketServletConfigurer extends WebSocketServlet {
 
 	@Override
 	public void configure(WebSocketServletFactory factory) {

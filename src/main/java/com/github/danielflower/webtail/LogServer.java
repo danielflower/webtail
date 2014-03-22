@@ -11,7 +11,7 @@ import org.eclipse.jetty.util.resource.Resource;
 
 import java.io.File;
 
-public class HelloWorld {
+public class LogServer {
 
 
 	public static void main(String[] args) throws Exception {
@@ -26,10 +26,18 @@ public class HelloWorld {
 
 		ResourceHandler resourceHandler = createResourceHandler();
 
+		LogCollector logCollector = new LogCollector();
+
+		LogInstance log1 = new LogInstance("log1");
+		logCollector.addInstance(log1);
+		LogInstance log2 = new LogInstance("log2");
+		logCollector.addInstance(log2);
+
+		RequestRouter.defaultInstance = new RequestRouter(logCollector);
 
 		ServletHandler websocketHandler = new ServletHandler();
 		server.setHandler(websocketHandler);
-		websocketHandler.addServletWithMapping(MyEchoServlet.class, "/echoit");
+		websocketHandler.addServletWithMapping(WebSocketServletConfigurer.class, "/echoit");
 
 
 		HandlerList handlers = new HandlerList();
