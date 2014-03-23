@@ -21,7 +21,8 @@ public class LogInstance {
 				while (true) {
 					try {
 						addLog(SAMPLE[Math.abs(random.nextInt(SAMPLE.length))]);
-						Thread.sleep(random.nextInt(1000) + 100);
+//						Thread.sleep(random.nextInt(1000) + 100);
+						Thread.sleep(10);
 					} catch (InterruptedException e) {
 						break;
 					}

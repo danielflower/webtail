@@ -11,15 +11,38 @@
             return service + ' ' + instance;
         };
 
-        var socketPromise = null;
+        var establishServerSubscription = function (serviceName, instanceName) {
+            getSocket().then(function (ws) {
+                var request = {
+                    name: serviceName,
+                    action: 'subscribe',
+                    instanceName: instanceName
+                };
+                ws.send(JSON.stringify(request));
+            });
+        };
 
+
+        var socketPromise = null;
         var subscribers = {};
+
+        var reconnectToExistingSubscriptions = function () {
+            for (var key in subscribers) {
+                if (subscribers.hasOwnProperty(key)) {
+                    var service = key.split(' ')[0];
+                    var instance = key.split(' ')[1];
+                    establishServerSubscription(service, instance);
+                }
+            }
+        };
+
         var getSocket = function () {
             if (!socketPromise) {
                 socketPromise = $q.defer()
                 var ws = new WebSocket("ws://localhost:8080/echoit");
                 ws.onopen = function (event) {
                     console.log('connected', event);
+                    reconnectToExistingSubscriptions();
                     socketPromise.resolve(ws);
                 };
                 ws.onmessage = function (event) {
@@ -29,12 +52,21 @@
                     });
                 };
                 ws.onclose = function (event) {
+                    socketPromise.reject('Connection closed');
                     socketPromise = null;
                     console.log('closed', event);
                 };
             }
             return socketPromise.promise;
         };
+
+        var keepAlive = function () {
+            console.log('keeping alive');
+            getSocket().finally(function () {
+                setTimeout(keepAlive, 5000);
+            });
+        };
+        keepAlive();
 
         var hasSubscribers = function (id) {
             return !!subscribers[id];
@@ -49,19 +81,13 @@
             return subbies;
         };
 
+
         this.subscribe = function (serviceName, instanceName, callback) {
             var id = idFor(serviceName, instanceName);
             var alreadySubscribed = hasSubscribers(id);
             getSubscribersForService(id).push(callback);
             if (!alreadySubscribed) {
-                getSocket().then(function (ws) {
-                    var request = {
-                        name: serviceName,
-                        action: 'subscribe',
-                        instanceName: instanceName
-                    };
-                    ws.send(JSON.stringify(request));
-                });
+                establishServerSubscription(serviceName, instanceName);
             }
         };
 
