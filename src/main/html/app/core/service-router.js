@@ -38,8 +38,9 @@
 
         var getSocket = function () {
             if (!socketPromise) {
-                socketPromise = $q.defer()
-                var ws = new WebSocket("ws://localhost:8080/echoit");
+                socketPromise = $q.defer();
+
+                var ws = new WebSocket('ws://' + window.location.hostname + ':' + window.location.port + '/echoit');
                 ws.onopen = function (event) {
                     console.log('connected', event);
                     reconnectToExistingSubscriptions();

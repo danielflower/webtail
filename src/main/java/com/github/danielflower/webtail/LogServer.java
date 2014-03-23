@@ -9,7 +9,9 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
+import java.awt.*;
 import java.io.File;
+import java.net.URI;
 
 public class LogServer {
 
@@ -19,8 +21,8 @@ public class LogServer {
 		Server server = new Server();
 
 		ServerConnector http = new ServerConnector(server);
-		http.setHost("localhost");
-		http.setPort(8080);
+		//http.setHost("localhost");
+		//http.setPort(8080);
 		http.setIdleTimeout(30000);
 		server.addConnector(http);
 
@@ -45,7 +47,20 @@ public class LogServer {
 		server.setHandler(handlers);
 
 		server.start();
+
+		openWebpage(server.getURI());
 		server.join();
+	}
+
+	private static void openWebpage(URI uri) {
+		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+		if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+			try {
+				desktop.browse(uri);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private static ResourceHandler createResourceHandler() {

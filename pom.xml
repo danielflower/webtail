@@ -60,6 +60,19 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>com.github.danielflower.webtail.LogServer</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase></phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
